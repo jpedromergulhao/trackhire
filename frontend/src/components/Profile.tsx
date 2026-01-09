@@ -1,71 +1,72 @@
-import { CircleUserRoundIcon, LogOutIcon, LogInIcon, User } from "lucide-react";
+import { CircleUserRoundIcon, LogInIcon, LogOutIcon, User } from "lucide-react";
 import Image from "next/image";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger } from "./ui/dropdown-menu";
-import Link from "next/link";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu";
+import { MouseEventHandler } from "react";
+import { useAuth } from "@/context/AuthContext";
 
-interface MenuItemContentProps {
+interface ProfileProps {
+     onLoginClick: () => void;
+}
+
+export interface MenuItemContentProps {
+    openModal: MouseEventHandler<HTMLDivElement> | undefined;
     text: string;
     icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 }
 
-export default function Profile() {
-    const user = null;
-
-    const handleLogout = async () => {
-        
-    }
-
-    const MenuItemContent = ({ text, icon: Icon }: MenuItemContentProps) => (
-        <div className="text-white hover:text-cyan-100 flex items-center justify-between w-full">
-            <span>{text}</span>
-            <DropdownMenuShortcut>
-                <Icon className="h-5 w-5 text-white hover:text-cyan-100" />
-            </DropdownMenuShortcut>
-        </div>
-    );
+export default function Profile({ onLoginClick }: ProfileProps) {
+    const { user, logout } = useAuth();
 
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <button className="h-fit cursor-pointer">
-                    {/* {user.profilePic ? (
-                <Image
-                    src={user.profilePic}
-                    alt={`${user.name} photo`}
-                    className=""
-                />
-            )
-                : (
-                    <CircleUserRoundIcon
-                        className=""
-                    />
-                )
-            } */}
-                    <CircleUserRoundIcon
-                        className="text-white hover:text-cyan-100 transition-all duration-300"
-                    />
+                    {user?.profilePicture ? (
+                        <Image
+                            src={user.profilePicture}
+                            alt={user.name}
+                            width={32}
+                            height={32}
+                            className="rounded-full"
+                        />
+                    ) : (
+                        <CircleUserRoundIcon
+                            className="text-white hover:text-cyan-100 transition-all duration-300"
+                        />
+                    )}
                 </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-10 bg-cyan-950" align="end">
-                <DropdownMenuItem asChild className="cursor-pointer hover:bg-cyan-800!">
-                    <Link href='/profile'>
-                        <MenuItemContent text="Profile" icon={User} />
-                    </Link>
-                </DropdownMenuItem>
+
+            <DropdownMenuContent className="bg-cyan-950 px-3" align="end">
+
+                {user && (
+                    <DropdownMenuItem className="bg-transparent! flex justify-between cursor-pointer text-white hover:text-cyan-100! transition-all duration-300">
+                        Profile
+                        <User className="h-5 w-5 text-white hover:text-cyan-100!" />
+                    </DropdownMenuItem>
+                )}
+
                 <DropdownMenuSeparator />
-                {user !== null ? (
-                    <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
+
+                {user ? (
+                    <DropdownMenuItem
+                        onClick={logout}
+                        className="bg-transparent! flex justify-between cursor-pointer text-white hover:text-cyan-100! transition-all duration-300"
+                    >
                         Log out
-                        <DropdownMenuShortcut><LogOutIcon /></DropdownMenuShortcut>
+                        <LogOutIcon className="h-5 w-5 text-white hover:text-cyan-100!" />
                     </DropdownMenuItem>
                 ) : (
-                    <DropdownMenuItem asChild className="cursor-pointer hover:bg-cyan-800!">
-                        <Link href='/login'>
-                            <MenuItemContent text="Log in" icon={LogInIcon} />
-                        </Link>
+                    <DropdownMenuItem
+                        onClick={onLoginClick}
+                        className="bg-transparent! flex justify-between cursor-pointer text-white hover:text-cyan-100! transition-all duration-300"
+                    >
+                        Log in
+                        <LogInIcon className="h-5 w-5 text-white hover:text-cyan-100!" />
                     </DropdownMenuItem>
                 )}
             </DropdownMenuContent>
         </DropdownMenu>
     );
 }
+
