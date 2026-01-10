@@ -6,7 +6,13 @@ import healthRoutes from './routes/health.routes';
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: [
+    "http://localhost:3000",
+    "https://trackhire-red.vercel.app/"
+  ],
+  credentials: true
+}));
 app.use(express.json());
 
 app.use('/auth', authRouter);
