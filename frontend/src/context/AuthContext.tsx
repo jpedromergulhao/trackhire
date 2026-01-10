@@ -3,8 +3,8 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAlert } from "@/providers/AlertProvider";
-import { AuthMode } from "@/wrappers/LayoutWrapper";
 import { URL } from "@/helpers/url";
+import { useLoading } from "./LoadingContext";
 
 interface User {
     id: string;
@@ -18,10 +18,10 @@ interface User {
 interface AuthContextProps {
     user: User | null;
     isAuthenticated: boolean;
-    isLoading: boolean;
     login: (email: string, password: string) => Promise<void>;
     register: (data: RegisterPayload) => Promise<void>;
     logout: () => void;
+    authLoading: boolean;
 }
 
 export interface RegisterPayload {
@@ -44,25 +44,25 @@ export const useAuth = () => {
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
-
+    const [authLoading, setAuthLoading] = useState(true);
     const router = useRouter();
     const { setAlert } = useAlert();
+    const { setLoading } = useLoading();
 
     const isAuthenticated = !!user;
 
     async function login(email: string, password: string) {
-        setIsLoading(true);
+        setLoading(true);
 
         if (!email || email.trim() === "") {
             setAlert({ type: "error", message: "Please provide your email" });
-            setIsLoading(false);
+            setLoading(false);
             return;
         }
 
         if (!password || password.trim() === "") {
             setAlert({ type: "error", message: "Please provide your password" });
-            setIsLoading(false);
+            setLoading(false);
             return;
         }
 
@@ -75,7 +75,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             if (!res.ok) {
                 const data = await res.json();
-                throw new Error(data.error || 'Failed to synchronize profile on the server.');
+                throw new Error(data.message || 'Log in failed. Please try again.');
             }
 
             const { token } = await res.json();
@@ -83,21 +83,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             await fetchUser(token);
 
-            setAlert({ type: "success", message: `Welcome back ${user?.name}!` });
-        } catch (error) {
-            setAlert({ type: "error", message: "Login failed" });
+            setAlert({ type: "success", message: `Hi! ${user?.name}!` });
+        } catch (error: any) {
+            setAlert({
+                type: "error",
+                message: error.message || "Log in failed. Please try again."
+            });
             throw error;
         } finally {
-            setIsLoading(false);
+            setLoading(false);
         }
     }
 
     async function register(data: RegisterPayload) {
-        setIsLoading(true);
+        setLoading(true);
 
         if (!data) {
             setAlert({ type: "error", message: "Please fill in all the required fields" });
-            setIsLoading(false);
+            setLoading(false);
             return;
         }
 
@@ -110,7 +113,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
             if (!res.ok) {
                 const data = await res.json();
-                throw new Error(data.error || 'Failed to synchronize profile on the server.');
+                throw new Error(data.message || 'Registration failed. Please try again.');
             }
 
             const { token } = await res.json();
@@ -119,11 +122,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             await fetchUser(token);
 
             setAlert({ type: "success", message: "Account created successfully!" });
-        } catch (error) {
-            setAlert({ type: "error", message: "Registration failed. Please try again." });
+        } catch (error: any) {
+            setAlert({
+                type: "error",
+                message: error.message || "Registration failed. Please try again.",
+            });
             throw error;
         } finally {
-            setIsLoading(false);
+            setLoading(false);
         }
     }
 
@@ -134,13 +140,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     async function fetchUser(token: string) {
-        const res = await fetch(`${URL}/me`, {
+        const res = await fetch(`${URL}/auth/me`, {
+            method: "GET",
             headers: {
                 Authorization: `Bearer ${token}`,
             },
         });
 
-        if (!res.ok) throw new Error("Invalid session");
+        if (!res.ok) {
+            const data = await res.json();
+            throw new Error(data.message || "Invalid session");
+        }
 
         const data = await res.json();
         setUser(data);
@@ -149,14 +159,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     //keeps the user logged in
     useEffect(() => {
         const token = localStorage.getItem("token");
-        if (token) {
-            fetchUser(token).catch(() => logout()); //automatically logs out if the token is invalid/expired
+
+        if (!token) {
+            setAuthLoading(false);
+            return;
         }
+
+        fetchUser(token)
+            .catch(() => logout())
+            .finally(() => setAuthLoading(false)); //automatically logs out if the token is invalid/expired
     }, []);
 
     return (
         <AuthContext.Provider
-            value={{ user, isAuthenticated, isLoading, login, register, logout }}
+            value={{ user, isAuthenticated, login, register, logout, authLoading  }}
         >
             {children}
         </AuthContext.Provider>
