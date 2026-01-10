@@ -84,7 +84,7 @@ npm run dev
 ### The API will be available at:
 
 ```text
-http://localhost:3333
+http://localhost:3001
 ```
 
 ## Notes
