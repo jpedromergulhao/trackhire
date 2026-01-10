@@ -4,6 +4,7 @@ import "./globals.css";
 import LayoutWrapper from "@/wrappers/LayoutWrapper";
 import { AuthProvider } from "@/context/AuthContext";
 import { AlertProvider } from "@/providers/AlertProvider";
+import { LoadingProvider } from "@/context/LoadingContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,14 +24,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} antialiased bg-cyan-50 selection:bg-cyan-800 selection:text-white`}
+        className={`${geistSans.variable} antialiased bg-cyan-50 selection:bg-cyan-800 selection:text-white scrollbar-thin scrollbar-thumb-cyan-300`}
       >
         <AlertProvider>
-          <AuthProvider>
-            <LayoutWrapper>
-              {children}
-            </LayoutWrapper>
-          </AuthProvider>
+          <LoadingProvider>
+            <AuthProvider>
+              <LayoutWrapper>
+                {children}
+              </LayoutWrapper>
+            </AuthProvider>
+          </LoadingProvider>
         </AlertProvider>
       </body>
     </html>

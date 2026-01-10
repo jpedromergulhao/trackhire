@@ -5,6 +5,7 @@ import { AuthModalHeader } from "./AuthModalHeader";
 import { useState } from "react";
 import { RegisterPayload, useAuth } from "@/context/AuthContext";
 import { AuthMode } from "@/wrappers/LayoutWrapper";
+import { useLoading } from "@/context/LoadingContext";
 
 interface Props {
     onBackToLogin: () => void;
@@ -19,7 +20,8 @@ export function RegisterModalContent({ onBackToLogin, setAuthMode }: Props) {
         desiredJob: "",
         desiredSalary: undefined,
     });
-    const { register, isLoading } = useAuth();
+    const { register } = useAuth();
+    const { loading } = useLoading();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -62,23 +64,20 @@ export function RegisterModalContent({ onBackToLogin, setAuthMode }: Props) {
                             <Label htmlFor="job" className='font-bold text-lg'>Desired Job</Label>
                             <Input
                                 id="job"
-                                name="job"
+                                name="desiredJob"
                                 type="text"
                                 onChange={handleChange}
                                 placeholder="Full Stack Developer"
-                                required
-                                className='text-cyan-950 bg-white selection:bg-cyan-800 selection:text-white'
                             />
                         </div>
                         <div className="space-y-1">
                             <Label htmlFor="salary" className='font-bold text-lg'>Desired salary</Label>
                             <Input
                                 id="salary"
-                                name="salary"
+                                name="desiredSalary"
                                 type="text"
                                 onChange={handleChange}
                                 placeholder="10000"
-                                className='text-cyan-950 bg-white selection:bg-cyan-800 selection:text-white'
                             />
                         </div>
                     </div>
@@ -110,10 +109,10 @@ export function RegisterModalContent({ onBackToLogin, setAuthMode }: Props) {
 
                 <button
                     type="submit"
-                    disabled={isLoading}
+                    disabled={loading}
                     className='bg-cyan-950 hover:bg-cyan-800 cursor-pointer text-white font-bold transition-all duration-300 rounded-full w-full p-3'
                 >
-                    {isLoading ? "Creating..." : "Create your account"}
+                    {loading ? "Creating..." : "Create your account"}
                 </button>
             </form>
 

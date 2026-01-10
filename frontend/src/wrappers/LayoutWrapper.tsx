@@ -12,12 +12,15 @@ import Footer from '@/components/Footer';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { LoginModalContent } from '@/components/LoginModalContent';
 import { RegisterModalContent } from '@/components/RegisterModalContent';
+import LoadingScreen from '@/components/LoadingScreen';
+import { useLoading } from '@/context/LoadingContext';
 
 export type AuthMode = "login" | "register" | null;
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
     const [logo, setLogo] = useState<string>(logoWhite);
     const [authMode, setAuthMode] = useState<AuthMode>(null);
+    const { loading } = useLoading();
 
     const openLogin = () => setAuthMode("login");
     const openRegister = () => setAuthMode("register");
@@ -50,7 +53,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                 <Dialog open={authMode !== null} onOpenChange={closeAuthModal}>
                     <DialogContent className="sm:max-w-[420px] bg-cyan-50 text-cyan-950">
                         {authMode === "login" && (
-                            <LoginModalContent onCreateAccount={openRegister} setAuthMode={setAuthMode}/>
+                            <LoginModalContent onCreateAccount={openRegister} setAuthMode={setAuthMode} />
                         )}
 
                         {authMode === "register" && (
@@ -58,6 +61,10 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                         )}
                     </DialogContent>
                 </Dialog>
+            </Activity>
+
+            <Activity mode={(loading) ? 'visible' : 'hidden'}>
+                <LoadingScreen />
             </Activity>
 
             <Toaster

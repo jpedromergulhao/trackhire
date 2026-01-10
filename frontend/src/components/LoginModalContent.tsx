@@ -5,6 +5,7 @@ import { AuthModalHeader } from "./AuthModalHeader";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { AuthMode } from "@/wrappers/LayoutWrapper";
+import { useLoading } from "@/context/LoadingContext";
 
 interface Props {
     onCreateAccount: () => void;
@@ -14,7 +15,8 @@ interface Props {
 export function LoginModalContent({ onCreateAccount, setAuthMode }: Props) {
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
-    const { login, isLoading } = useAuth();
+    const { login } = useAuth();
+    const { loading } = useLoading();
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -61,10 +63,10 @@ export function LoginModalContent({ onCreateAccount, setAuthMode }: Props) {
 
                 <button
                     type="submit"
-                    disabled={isLoading}
+                    disabled={loading}
                     className='bg-cyan-950 hover:bg-cyan-800 cursor-pointer text-white font-bold transition-all duration-300 rounded-full w-full p-3'
                 >
-                    {isLoading ? "Connecting..." : "Connect"}
+                    {loading ? "Connecting..." : "Connect"}
                 </button>
             </form>
 
