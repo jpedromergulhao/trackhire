@@ -6,7 +6,7 @@ import { AuthRequest } from '../middlewares/auth.middleware';
 
 export async function register(req: Request, res: Response) {
     try {
-        const { email, password, name, desiredJob } = req.body;
+        const { email, password, name, desiredJob, desiredSalary } = req.body;
 
         const userExists = await prisma.user.findUnique({
             where: { email },
@@ -24,6 +24,7 @@ export async function register(req: Request, res: Response) {
                 password: hashedPassword,
                 name,
                 desiredJob,
+                desiredSalary,
             },
         });
 
