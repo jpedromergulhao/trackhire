@@ -90,7 +90,7 @@ export default function Footer() {
             <p className="text-white w-full pt-10 border-t-2 border-cyan-800">
                 © 2026 TrackHire. All rights reserved. Developer by{" "}
                 <Link
-                    href="https://portfoliojoaopedro-tan.vercel.app/"
+                    href="https://www.jpmergulhao.com/"
                     target="_blank"
                     className="hover:text-cyan-100 transition-all duration-300 underline"
                 >
